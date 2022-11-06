@@ -1,9 +1,36 @@
+require('dotenv').config();
+const { Pool } = require('pg');
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3001;
 
+
 app.get("/", (req, res) => res.type('html').send(html));
-app.get("/message", (req, res) => res.json({"message": "Deploy ta funcionando!"}));
+app.get("/message", async (req, res) => {
+  try {
+    const pool = new Pool({
+      user: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE,
+      port: process.env.PGPORT,
+      host: process.env.PGHOST,
+      ssl: true
+    });
+
+    const books = await getBooks(pool);
+
+    return res.status(200).json({ "data": books });
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ "error": "deu ruim no banquinho" })
+  }
+});
+
+async function getBooks(pool) {
+  const { rows } = await pool.query('select * from books')
+  await pool.end()
+  return rows;
+}
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
