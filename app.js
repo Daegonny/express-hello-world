@@ -13,7 +13,10 @@ app.get("/message", async (req, res) => {
       password: process.env.PGPASSWORD,
       database: process.env.PGDATABASE,
       port: process.env.PGPORT,
-      host: process.env.PGHOST
+      host: process.env.PGHOST,
+      ssl: {
+        rejectUnauthorized: false
+      }
     });
 
     const books = await getBooks(pool);
